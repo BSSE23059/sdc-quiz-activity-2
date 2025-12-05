@@ -4,7 +4,7 @@
 # ============================================
 # 1. START AND STOP SERVICES
 # ============================================
-
+# It is done
 # Start all services
 docker-compose up -d --build
 

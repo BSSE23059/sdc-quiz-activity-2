@@ -1,0 +1,68 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="INFORMATION" enabled_by_default="true" editorAttributes="INFORMATION_ATTRIBUTES">
+      <option name="ignoredPackages">
+        <list>
+          <option value="altgraph" />
+          <option value="attrs" />
+          <option value="auto-py-to-exe" />
+          <option value="bottle" />
+          <option value="bottle-websocket" />
+          <option value="cachetools" />
+          <option value="certifi" />
+          <option value="cffi" />
+          <option value="charset-normalizer" />
+          <option value="Eel" />
+          <option value="future" />
+          <option value="gevent" />
+          <option value="gevent-websocket" />
+          <option value="google-auth" />
+          <option value="google-auth-oauthlib" />
+          <option value="greenlet" />
+          <option value="gspread" />
+          <option value="h11" />
+          <option value="idna" />
+          <option value="oauthlib" />
+          <option value="outcome" />
+          <option value="packaging" />
+          <option value="pefile" />
+          <option value="pyasn1" />
+          <option value="pyasn1_modules" />
+          <option value="pycparser" />
+          <option value="pyinstaller" />
+          <option value="pyinstaller-hooks-contrib" />
+          <option value="pyparsing" />
+          <option value="PyQt5" />
+          <option value="PyQt5-Qt5" />
+          <option value="PyQt5_sip" />
+          <option value="PySocks" />
+          <option value="pywin32-ctypes" />
+          <option value="requests" />
+          <option value="requests-oauthlib" />
+          <option value="rsa" />
+          <option value="selenium" />
+          <option value="setuptools" />
+          <option value="sniffio" />
+          <option value="sortedcontainers" />
+          <option value="trio" />
+          <option value="trio-websocket" />
+          <option value="typing_extensions" />
+          <option value="urllib3" />
+          <option value="websocket-client" />
+          <option value="wsproto" />
+          <option value="zope.event" />
+          <option value="zope.interface" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N812" />
+          <option value="N814" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
