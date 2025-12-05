@@ -1,0 +1,78 @@
+pipeline {
+    agent any
+
+    environment {
+        // REPLACE THIS WITH YOUR DOCKER HUB USERNAME
+        DOCKER_HUB_REPO = 'hazim281/registration-app'
+
+        // Credentials ID you created in Jenkins
+        REGISTRY_CREDENTIALS = 'docker-hub-credentials'
+
+        // Kubeconfig secret ID
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig-secret'
+
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Initialize') {
+            steps {
+                echo "🚀 Starting CI/CD Pipeline for Build #${env.BUILD_NUMBER}"
+                sh 'docker --version'
+            }
+        }
+
+        stage('Build Image') {
+            steps {
+                script {
+                    echo "🛠 Building Docker Image..."
+                    // Building using the Dockerfile you uploaded
+                    sh "docker build -t ${DOCKER_HUB_REPO}:${IMAGE_TAG} ."
+                    sh "docker build -t ${DOCKER_HUB_REPO}:latest ."
+                }
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    echo "cS Uploading to Docker Hub..."
+                    withCredentials([usernamePassword(credentialsId: REGISTRY_CREDENTIALS, usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                        sh "echo $PASS | docker login -u $USER --password-stdin"
+                        sh "docker push ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
+                        sh "docker push ${DOCKER_HUB_REPO}:latest"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to K8s') {
+            steps {
+                script {
+                    echo "⚓ Deploying to Kubernetes..."
+                    // We use withCredentials to load the kubeconfig safely
+                    withCredentials([file(credentialsId: KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG')]) {
+                        // 1. Apply the structure (Service/Deployment) if changed
+                        sh "kubectl --kubeconfig=$KUBECONFIG apply -f deployment.yaml"
+                        sh "kubectl --kubeconfig=$KUBECONFIG apply -f service.yaml"
+
+                        // 2. Force update the image to the new tag we just built
+                        sh "kubectl --kubeconfig=$KUBECONFIG set image deployment/registration-app-deployment registration-app=${DOCKER_HUB_REPO}:${IMAGE_TAG}"
+
+                        // 3. Verify rollout status
+                        sh "kubectl --kubeconfig=$KUBECONFIG rollout status deployment/registration-app-deployment"
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Mission Accomplished: Deployment successful!"
+        }
+        failure {
+            echo "❌ Mission Failed: Check logs."
+        }
+    }
+}
