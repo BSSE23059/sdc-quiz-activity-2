@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Register Page</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .registration-card {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 10px 30px;
+            font-weight: 600;
+        }
+        .btn-register:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .card-title {
+            color: #667eea;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        .data-display {
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .user-data-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+        .loader {
+            display: none;
+            text-align: center;
+        }
+        .spinner-border {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <!-- Registration Form Card -->
+                <div class="card registration-card">
+                    <div class="card-body p-5">
+                        <h2 class="card-title text-center">User Registration</h2>
+                        
+                        <form id="registrationForm">
+                            <div class="mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" required>
+                                <small class="text-danger" id="first_name_error"></small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" required>
+                                <small class="text-danger" id="last_name_error"></small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="email" name="username" class="form-control" id="username" placeholder="Username">
+                                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                                <small class="text-danger" id="username_error"></small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
+                                <small class="text-danger" id="password_error"></small>
+                            </div>
+
+                            <!-- Alert Messages -->
+                            <div id="alertContainer"></div>
+
+                            <!-- Loader -->
+                            <div class="loader" id="loader">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="ms-2">Registering...</span>
+                            </div>
+
+                            <p>Already have an account? <a href="/login/">login</a></p>
+                            <button type="submit" class="btn btn-register w-100">Register</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Submitted Data Display -->
+                <div id="dataContainer" class="data-display" style="display: none;">
+                    <div class="card" style="border-top: 4px solid #28a745;">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">✓ Submitted Data</h5>
+                            <div id="submittedDataList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55RGBY6STSylqJSN56S+9RqD5jks5" crossorigin="anonymous"></script>
+    
+    <script>
+        const form = document.getElementById('registrationForm');
+        const loader = document.getElementById('loader');
+        const alertContainer = document.getElementById('alertContainer');
+        const dataContainer = document.getElementById('dataContainer');
+        const submittedDataList = document.getElementById('submittedDataList');
+
+        // Form submission handler
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors and alerts
+            clearErrors();
+            alertContainer.innerHTML = '';
+            
+            // Get form data
+            const formData = {
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                username: document.getElementById('username').value.trim(),
+                password: document.getElementById('password').value.trim()
+            };
+
+            // Validate fields are not empty
+            if (!formData.first_name) {
+                showError('first_name', 'First name is required');
+                return;
+            }
+            if (!formData.last_name) {
+                showError('last_name', 'Last name is required');
+                return;
+            }
+            if (!formData.username) {
+                showError('username', 'Username is required');
+                return;
+            }
+            if (!formData.password) {
+                showError('password', 'Password is required');
+                return;
+            }
+
+            // Show loader
+            loader.style.display = 'block';
+
+            try {
+                // Get the API endpoint
+                const apiUrl = window.location.origin + '/api/register';
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    showAlert('success', '✓ Registration successful! Your data has been submitted.');
+                    
+                    // Reset form
+                    form.reset();
+                    
+                    // Display submitted data
+                    displaySubmittedData(result.data);
+                    
+                    // Fetch and display all submitted data
+                    fetchAllData();
+                } else {
+                    showAlert('error', '✗ Error: ' + (result.detail || 'Registration failed'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', '✗ Network error: Could not connect to server. ' + error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        });
+
+        // Display submitted data
+        function displaySubmittedData(data) {
+            dataContainer.style.display = 'block';
+            const dataHtml = `
+                <div class="user-data-card p-3 rounded">
+                    <p class="mb-2"><strong>First Name:</strong> ${escapeHtml(data.first_name)}</p>
+                    <p class="mb-2"><strong>Last Name:</strong> ${escapeHtml(data.last_name)}</p>
+                    <p class="mb-2"><strong>Username:</strong> ${escapeHtml(data.username)}</p>
+                    <p class="mb-0"><strong>Password:</strong> <span style="color: #999;">••••••••</span></p>
+                </div>
+            `;
+            submittedDataList.innerHTML = dataHtml;
+        }
+
+        // Fetch all submitted data
+        async function fetchAllData() {
+            try {
+                const response = await fetch(window.location.origin + '/api/data');
+                const data = await response.json();
+                
+                if (data.length > 0) {
+                    let allDataHtml = '<p class="text-muted small mb-2">All submissions:</p>';
+                    data.forEach((item, index) => {
+                        allDataHtml += `
+                            <div class="user-data-card p-2 rounded small">
+                                <p class="mb-1">#${index + 1} - <strong>${escapeHtml(item.first_name)} ${escapeHtml(item.last_name)}</strong></p>
+                                <p class="mb-0 text-muted">Username: ${escapeHtml(item.username)}</p>
+                            </div>
+                        `;
+                    });
+                    submittedDataList.innerHTML = allDataHtml;
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        // Show error message
+        function showError(fieldId, message) {
+            const errorElement = document.getElementById(fieldId + '_error');
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        // Clear all errors
+        function clearErrors() {
+            document.querySelectorAll('[id$="_error"]').forEach(el => {
+                el.textContent = '';
+            });
+        }
+
+        // Show alert message
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const alertHtml = `
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHtml;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load data on page load
+        window.addEventListener('load', () => {
+            fetchAllData();
+        });
+    </script>
+</body>
+</html>
